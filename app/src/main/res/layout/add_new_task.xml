@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<EditText
+    android:id="@+id/edit_text"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:hint="Add New Task"
+    android:textSize="20sp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/new_task_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/edit_text"
+        android:text="Add"
+        android:textSize="20sp"
+        android:layout_marginEnd="10dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dp"/>
+</RelativeLayout>
