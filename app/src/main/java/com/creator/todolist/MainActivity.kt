@@ -3,7 +3,10 @@ package com.creator.todolist
 import android.content.ClipData
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageView
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -23,6 +26,7 @@ class MainActivity : AppCompatActivity() , OnDialogCloseListener{
     lateinit var db : DatabaseHelper
     lateinit var tasks : List<Task>
     lateinit var adapter: ToDoAdapter
+    lateinit var emptylist : ImageView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -32,28 +36,58 @@ class MainActivity : AppCompatActivity() , OnDialogCloseListener{
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        initViews()
+        setupRecyclerView()
+        setupClickListeners()
+        loadTasks()
+    }
+
+    override fun onDialogClose(dialog: DialogInterface) {
+        loadTasks()
+
+    }
+    private fun initViews() {
+        emptylist = findViewById(R.id.empty_list)
         tasksRecycle = findViewById(R.id.tasks)
+        addTaskBtn = findViewById(R.id.add_task_btn)
+    }
+    private fun setupRecyclerView() {
         tasksRecycle.setHasFixedSize(true)
         tasksRecycle.layoutManager = LinearLayoutManager(this)
-        addTaskBtn = findViewById(R.id.add_task_btn)
+
         db = DatabaseHelper(this)
-        tasks = listOf()
-        tasks = db.getAllTasks()
-        tasks = tasks.reversed()
-        adapter = ToDoAdapter(this, tasks.toMutableList(), db)
+        adapter = ToDoAdapter(this, mutableListOf(), db)
         tasksRecycle.adapter = adapter
 
-        addTaskBtn.setOnClickListener {
-            AddNewTaskFragment.newInstance().show(supportFragmentManager, AddNewTaskFragment.TAG)
+        // Set up empty state callback
+        adapter.onEmptyState = { isEmpty ->
+            updateEmptyStateVisibility(isEmpty)
         }
+
         val touchHelper = ItemTouchHelper(RecyclerViewTouchHelper(adapter))
         touchHelper.attachToRecyclerView(tasksRecycle)
     }
 
-    override fun onDialogClose(dialog: DialogInterface) {
-        tasks = db.getAllTasks()
-        tasks = tasks.reversed()
-        adapter.tasks = tasks.toMutableList()
-        adapter.notifyDataSetChanged()
+    private fun setupClickListeners() {
+        addTaskBtn.setOnClickListener {
+            AddNewTaskFragment.newInstance().show(supportFragmentManager, AddNewTaskFragment.TAG)
+        }
     }
+
+    private fun loadTasks() {
+        tasks = db.getAllTasks().reversed()
+        adapter.updateTasks(tasks.toMutableList())
+        updateEmptyStateVisibility(tasks.isEmpty())
+    }
+
+    private fun updateEmptyStateVisibility(isEmpty: Boolean) {
+        if (isEmpty) {
+            emptylist.visibility = View.VISIBLE
+            tasksRecycle.visibility = View.GONE
+        } else {
+            emptylist.visibility = View.GONE
+            tasksRecycle.visibility = View.VISIBLE
+        }
+    }
+
 }

@@ -18,6 +18,7 @@ class ToDoAdapter(
     var tasks : MutableList<Task>,
     val db : DatabaseHelper
 ) : RecyclerView.Adapter<ToDoAdapter.ViewHolder>() {
+    var onEmptyState: ((isEmpty: Boolean) -> Unit)? = null
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -49,11 +50,17 @@ class ToDoAdapter(
         db.deleteTask(task.id)
         tasks.removeAt(position)
         notifyItemRemoved(position)
+        onEmptyState?.invoke(tasks.isEmpty())
     }
     fun toBoolean(n: Int) = n != 0
 
     override fun getItemCount(): Int {
         return tasks.size
+    }
+    fun updateTasks(newTasks: MutableList<Task>) {
+        tasks = newTasks
+        notifyDataSetChanged()
+        onEmptyState?.invoke(tasks.isEmpty())
     }
     fun editTask(position: Int) {
         val item = tasks.get(position)
@@ -66,6 +73,7 @@ class ToDoAdapter(
         task.show(activity.supportFragmentManager, task.tag)
 
     }
+
     class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
         val checkbox = itemView.findViewById<CheckBox>(R.id.checkbox)
     }

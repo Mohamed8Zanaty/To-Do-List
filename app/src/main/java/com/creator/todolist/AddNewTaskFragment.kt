@@ -24,6 +24,7 @@ class AddNewTaskFragment : BottomSheetDialogFragment() {
 
     companion object {
         val TAG = "AddNewTask"
+        var isEmpty = false
         fun newInstance(): AddNewTaskFragment {
             return AddNewTaskFragment()
         }
@@ -91,6 +92,7 @@ class AddNewTaskFragment : BottomSheetDialogFragment() {
                 db.addTask(item)
             }
             dismiss()
+            isEmpty = true
         }
     }
 
